@@ -26,6 +26,10 @@ func NewAuthService(firebaseAuth *auth.FirebaseAuthService, userRepo repositorie
 
 // Register creates a new user account
 func (s *AuthService) Register(ctx context.Context, req *entities.AuthRequest) (*entities.AuthResponse, error) {
+	if s.firebaseAuth == nil {
+		return nil, fmt.Errorf("Firebase Auth is not configured")
+	}
+	
 	// Check if user already exists
 	existingUser, err := s.userRepository.GetByEmail(ctx, req.Email)
 	if err == nil && existingUser != nil {
@@ -66,6 +70,10 @@ func (s *AuthService) Register(ctx context.Context, req *entities.AuthRequest) (
 
 // Login authenticates a user (Firebase handles the actual authentication on client side)
 func (s *AuthService) Login(ctx context.Context, idToken string) (*entities.AuthResponse, error) {
+	if s.firebaseAuth == nil {
+		return nil, fmt.Errorf("Firebase Auth is not configured")
+	}
+	
 	// Verify the ID token from Firebase client SDK
 	user, err := s.firebaseAuth.VerifyIDToken(ctx, idToken)
 	if err != nil {
@@ -103,6 +111,10 @@ func (s *AuthService) Login(ctx context.Context, idToken string) (*entities.Auth
 
 // Logout revokes user's refresh tokens
 func (s *AuthService) Logout(ctx context.Context, uid string) error {
+	if s.firebaseAuth == nil {
+		return fmt.Errorf("Firebase Auth is not configured")
+	}
+	
 	err := s.firebaseAuth.RevokeRefreshTokens(ctx, uid)
 	if err != nil {
 		return fmt.Errorf("failed to logout user: %w", err)
@@ -112,6 +124,10 @@ func (s *AuthService) Logout(ctx context.Context, uid string) error {
 
 // ValidateToken validates an ID token and returns the user
 func (s *AuthService) ValidateToken(ctx context.Context, idToken string) (*entities.User, error) {
+	if s.firebaseAuth == nil {
+		return nil, fmt.Errorf("Firebase Auth is not configured")
+	}
+	
 	user, err := s.firebaseAuth.VerifyIDToken(ctx, idToken)
 	if err != nil {
 		return nil, fmt.Errorf("invalid token: %w", err)
@@ -128,6 +144,10 @@ func (s *AuthService) ValidateToken(ctx context.Context, idToken string) (*entit
 
 // RefreshToken creates a new custom token (Firebase client SDK handles refresh tokens)
 func (s *AuthService) RefreshToken(ctx context.Context, uid string) (*entities.AuthToken, error) {
+	if s.firebaseAuth == nil {
+		return nil, fmt.Errorf("Firebase Auth is not configured")
+	}
+	
 	// Verify user exists
 	_, err := s.userRepository.GetByID(ctx, uid)
 	if err != nil {
@@ -160,6 +180,10 @@ func (s *AuthService) GetUserProfile(ctx context.Context, uid string) (*entities
 
 // UpdateUserProfile updates user profile information
 func (s *AuthService) UpdateUserProfile(ctx context.Context, uid string, updates map[string]interface{}) (*entities.User, error) {
+	if s.firebaseAuth == nil {
+		return nil, fmt.Errorf("Firebase Auth is not configured")
+	}
+	
 	// Update in Firebase Auth
 	user, err := s.firebaseAuth.UpdateUser(ctx, uid, updates)
 	if err != nil {

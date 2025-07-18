@@ -30,6 +30,7 @@ func NewServer() *Server {
 	if err != nil {
 		log.Printf("Warning: Failed to initialize Firebase Auth: %v", err)
 		log.Println("Firebase Auth will not be available. Make sure to set FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, and FIREBASE_CLIENT_EMAIL environment variables.")
+		firebaseAuth = nil // Explicitly set to nil for safety
 	}
 	
 	// Initialize repositories
