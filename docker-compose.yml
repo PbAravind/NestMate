@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Go Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DB_DRIVER=sqlite
+      - DB_NAME=/app/data/nestmate.db
+      - JWT_SECRET=your-development-secret-key
+    volumes:
+      - ./backend:/app
+      - backend_data:/app/data
+    depends_on:
+      - db
+    networks:
+      - nestmate-network
+
+  # React Web App
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080/api/v1
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    networks:
+      - nestmate-network
+
+  # PostgreSQL Database (for production-like development)
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=nestmate
+      - POSTGRES_USER=nestmate
+      - POSTGRES_PASSWORD=nestmate123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nestmate-network
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - nestmate-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_data:
+
+networks:
+  nestmate-network:
+    driver: bridge
