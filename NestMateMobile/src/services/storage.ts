@@ -38,7 +38,7 @@ export const ExpenseStorage = {
   async getAllExpenses(): Promise<Expense[]> {
     try {
       const result = await expensesDB.allDocs({ include_docs: true });
-      return result.rows.map(row => row.doc) as unknown as Expense[];
+      return result.rows.map((row: any) => row.doc) as unknown as Expense[];
     } catch (error) {
       console.error('Error getting all expenses:', error);
       return [];
@@ -85,7 +85,7 @@ export const TaskStorage = {
   async getAllTasks(): Promise<Task[]> {
     try {
       const result = await tasksDB.allDocs({ include_docs: true });
-      return result.rows.map(row => row.doc) as unknown as Task[];
+      return result.rows.map((row: any) => row.doc) as unknown as Task[];
     } catch (error) {
       console.error('Error getting all tasks:', error);
       return [];
@@ -132,7 +132,7 @@ export const NoteStorage = {
   async getAllNotes(): Promise<Note[]> {
     try {
       const result = await notesDB.allDocs({ include_docs: true });
-      return result.rows.map(row => row.doc) as unknown as Note[];
+      return result.rows.map((row: any) => row.doc) as unknown as Note[];
     } catch (error) {
       console.error('Error getting all notes:', error);
       return [];
