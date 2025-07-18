@@ -21,6 +21,11 @@ type FirebaseAuthService struct {
 
 // NewFirebaseAuthService creates a new Firebase Auth service
 func NewFirebaseAuthService(cfg *config.FirebaseConfig) (*FirebaseAuthService, error) {
+	// Validate required configuration
+	if cfg.ProjectID == "" || cfg.PrivateKey == "" || cfg.ClientEmail == "" {
+		return nil, fmt.Errorf("Firebase configuration is incomplete: ProjectID, PrivateKey, and ClientEmail are required")
+	}
+	
 	ctx := context.Background()
 	
 	// Create Firebase credentials from config
