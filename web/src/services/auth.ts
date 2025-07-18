@@ -9,17 +9,23 @@ export const AuthService = {
   async login(email: string, password: string): Promise<User> {
     try {
       const response = await api.login(email, password);
-      const { accessToken, refreshToken } = response as AuthToken;
       
-      // Store tokens in localStorage
-      localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
-      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      // The API returns an ApiResponse<any> where data contains the auth token and user
+      if (response.data) {
+        const authData = response.data as { token: AuthToken, user: User };
+        const { token, user } = authData;
+        
+        // Store tokens in localStorage
+        localStorage.setItem(AUTH_TOKEN_KEY, token.accessToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, token.refreshToken);
+        
+        // Store user data
+        localStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+        
+        return user;
+      }
       
-      // Store user data
-      const userData = response.user as User;
-      localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
-      
-      return userData;
+      throw new Error('Invalid response from server');
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -29,7 +35,13 @@ export const AuthService = {
   async register(email: string, password: string): Promise<User> {
     try {
       const response = await api.register(email, password);
-      return response as User;
+      
+      // The API returns an ApiResponse<any> where data contains the user
+      if (response.data && response.data.user) {
+        return response.data.user as User;
+      }
+      
+      throw new Error('Invalid response from server');
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
